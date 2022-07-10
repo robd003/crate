@@ -22,20 +22,10 @@
 package io.crate.expression.scalar.string;
 
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import org.elasticsearch.common.Strings;
-
-import java.nio.charset.StandardCharsets;
 
 import io.crate.data.Input;
 import io.crate.expression.scalar.ScalarFunctionModule;
@@ -92,87 +82,23 @@ public final class ParseURIFunction extends Scalar<Object, String> {
         final Map<String, Object> uriMap = new LinkedHashMap<>();
 
         URI uri = null;
-        URL url = null;
 
-        String scheme;
-        String hostname;
-        Integer port;
-        String path;
-        String query;
-        String fragment;
-        String userinfo;
-
-        // Unfortunately the URI class is rather strict in its processing and fails for non URI-encoded characters
         try {
             uri = new URI(uriText);
-            scheme = uri.getScheme();
-            hostname = uri.getHost();
-            port = uri.getPort();
-            path = uri.getPath();
-            query = uri.getQuery();
-            fragment = uri.getFragment();
-            userinfo = uri.getUserInfo();
         } catch (URISyntaxException e) {
-            try {
-                url = new URL(uriText);
-                scheme = url.getProtocol();
-                hostname = url.getHost();
-                port = url.getPort();
-                path = url.getPath();
-                query = url.getQuery();
-                fragment = url.getRef();
-                userinfo = url.getUserInfo();
-            } catch (MalformedURLException e1) {
-                throw new IllegalArgumentException(String.format(Locale.ENGLISH,
-                                                             "unable to parse uri %s",
-                                                             uriText));
-            }
+            throw new IllegalArgumentException(String.format(Locale.ENGLISH,
+                                                         "unable to parse uri %s",
+                                                         uriText));
         }
 
-        putNonNullValue(uriMap,"scheme", scheme);
-        putNonNullValue(uriMap,"hostname", hostname);
-        putNonNullValue(uriMap,"port", port == -1 ? null : port);
-        putNonNullValue(uriMap,"path", decodeText(path));
-        putNonNullValue(uriMap,"query", parseQuery(query));
-        putNonNullValue(uriMap,"fragment", fragment);
-        if (! Strings.isNullOrEmpty(userinfo)) {
-            String[] userinfoArray = userinfo.split(":");
-            putNonNullValue(uriMap,"user", decodeText(userinfoArray[0]));
-            putNonNullValue(uriMap,"password", userinfoArray.length > 1 ? decodeText(userinfoArray[1]) : null);
-        }
+        uriMap.put("scheme", uri.getScheme());
+        uriMap.put("hostname", uri.getHost());
+        uriMap.put("port", uri.getPort() == -1 ? null :  uri.getPort());
+        uriMap.put("path",  uri.getPath());
+        uriMap.put("query",  uri.getQuery());
+        uriMap.put("fragment",  uri.getFragment());
+        uriMap.put("userinfo",  uri.getUserInfo());
+
         return uriMap;
     }
-
-    private final <K,T> void putNonNullValue(Map<K,T> map, K key, T value) {
-        if (value != null) {
-            map.put(key,value);
-        }
-    }
-
-    private final Map<String,List<String>> parseQuery(String query) {
-        if (Strings.isNullOrEmpty(query)) {
-            return null;
-        }
-
-        Map<String,List<String>> queryMap = new HashMap<String,List<String>>();
-        Arrays.stream(query.split("&(?!amp)"))
-                     .forEach((String param) -> parseQueryParameters(queryMap, param));
-
-        return queryMap;
-    }
-
-    private final void parseQueryParameters(Map<String,List<String>> map, String params) {
-        final int idx = params.indexOf("=");
-        final String key = idx > 0 ? decodeText(params.substring(0, idx)) : decodeText(params);
-        final String value = idx > 0 && params.length() > idx + 1 ? decodeText(params.substring(idx + 1)) : "";
-        if (!map.containsKey(key)) {
-            map.put(key, new ArrayList<String>());
-        }
-        map.get(key).add(value);
-    }
-
-    private final String decodeText(String text) {
-        return java.net.URLDecoder.decode(text, StandardCharsets.UTF_8);
-    }
-
 }
