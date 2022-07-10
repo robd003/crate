@@ -68,6 +68,7 @@ import io.crate.expression.scalar.string.HashFunctions;
 import io.crate.expression.scalar.string.InitCapFunction;
 import io.crate.expression.scalar.string.LengthFunction;
 import io.crate.expression.scalar.string.ParseURIFunction;
+import io.crate.expression.scalar.string.ParseURLFunction;
 import io.crate.expression.scalar.string.QuoteIdentFunction;
 import io.crate.expression.scalar.string.ReplaceFunction;
 import io.crate.expression.scalar.string.StringCaseFunction;
@@ -223,5 +224,6 @@ public class ScalarFunctionModule extends AbstractFunctionModule<FunctionImpleme
 
         HasSchemaPrivilegeFunction.register(this);
         ParseURIFunction.register(this);
+        ParseURLFunction.register(this);
     }
 }
