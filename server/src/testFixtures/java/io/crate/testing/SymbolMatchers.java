@@ -77,7 +77,7 @@ public class SymbolMatchers {
         return Matchers.allOf(Matchers.instanceOf(Literal.class), hasValue(expectedValue), hasDataType(type));
     }
 
-    public static Matcher<Symbol> isLiteral(Double expectedValue, Double precisionError) {
+    public static Matcher<Symbol> isLiteral(Double expectedValue, double precisionError) {
         return Matchers.allOf(Matchers.instanceOf(Literal.class),
                               withFeature(s -> (Double) ((Input<?>) s).value(), "value", closeTo(expectedValue, precisionError)),
                               hasDataType(DataTypes.DOUBLE));
