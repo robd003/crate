@@ -459,18 +459,16 @@ public class TestSqlParser {
 
     @Test
     public void testStackOverflowExpression() {
-        final int copies = isAppleSilicon() ? 6000 : 4000;
         assertThatThrownBy(
-            () -> SqlParser.createExpression(Lists2.joinOn(" OR ", nCopies(copies, "x = y"), x -> x)))
+            () -> SqlParser.createExpression(Lists2.joinOn(" OR ", nCopies(6000, "x = y"), x -> x)))
             .isExactlyInstanceOf(ParsingException.class)
             .hasMessage("line 1:1: expression is too large (stack overflow while parsing)");
     }
 
     @Test
     public void testStackOverflowStatement() {
-        final int copies = isAppleSilicon() ? 6000 : 4000;
         assertThatThrownBy(
-            () -> SqlParser.createStatement("SELECT " + Lists2.joinOn(" OR ", nCopies(copies, "x = y"), x -> x)))
+            () -> SqlParser.createStatement("SELECT " + Lists2.joinOn(" OR ", nCopies(6000, "x = y"), x -> x)))
             .isExactlyInstanceOf(ParsingException.class)
             .hasMessage("line 1:1: statement is too large (stack overflow while parsing)");
     }
@@ -533,11 +531,5 @@ public class TestSqlParser {
     private static String indent(String value) {
         String indent = "    ";
         return indent + value.trim().replaceAll("\n", "\n" + indent);
-    }
-
-    private static boolean isAppleSilicon() {
-        String osName = System.getProperty("os.name");
-        String osArch = System.getProperty("os.arch");
-        return osName != null && osName.startsWith("Mac") && "aarch64".equals(osArch);
     }
 }

@@ -6,7 +6,7 @@
  * you may not use this file except in compliance with the License.  You may
  * obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
@@ -19,21 +19,30 @@
  * software solely pursuant to the terms of the relevant commercial agreement.
  */
 
-package io.crate.expression.scalar.arithmetic;
+package io.crate.testing;
 
-import static io.crate.testing.SymbolMatchers.isLiteral;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.withPrecision;
 
-import org.junit.Test;
+import org.assertj.core.api.AbstractAssert;
 
-import io.crate.expression.scalar.ScalarTestCase;
+import io.crate.expression.symbol.Literal;
+import io.crate.types.DataType;
+import io.crate.types.DataTypes;
 
-public class ExpFunctionTest extends ScalarTestCase {
+public final class LiteralAssert extends AbstractAssert<LiteralAssert, Literal<?>> {
 
-    @Test
-    public void test_exp_scalar() {
-        assertNormalize("exp(1)", isLiteral(2));
-        assertNormalize("exp(1::bigint)", isLiteral(2L));
-        assertNormalize("exp(1.0)", isLiteral(2.718281828459045d, 1d));
-        assertNormalize("exp(1.0::real)", isLiteral(2.7182817F));
+    public LiteralAssert(Literal<?> actual) {
+        super(actual, LiteralAssert.class);
+    }
+
+    public LiteralAssert isLiteral(Literal<?> value) {
+        isNotNull();
+        isExactlyInstanceOf(Literal.class);
+        if (actual.valueType().equals(DataTypes.DOUBLE) == false) {
+            failWithMessage("Expected Literal to be of data type: [%s]", DataTypes.DOUBLE);
+        }
+        assertThat((Double) actual.value()).isEqualTo((Double) value.value(), withPrecision(1d));
+        return this;
     }
 }
