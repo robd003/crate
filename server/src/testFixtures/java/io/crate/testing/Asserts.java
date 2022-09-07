@@ -29,10 +29,16 @@ import org.hamcrest.Matcher;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
 
+import io.crate.expression.symbol.Literal;
+
 public class Asserts {
 
     public static SettingsAssert assertThat(Settings actual) {
         return new SettingsAssert(actual);
+    }
+
+    public static LiteralAssert assertThat(Literal<?> actual ) {
+        return new LiteralAssert(actual);
     }
 
     private Asserts() {}
