@@ -192,6 +192,7 @@ public class PostgresWireProtocol {
 
     public static int SERVER_VERSION_NUM = 100500;
     public static String PG_SERVER_VERSION = "10.5";
+    public static String DATE_STYLE = "ISO";
 
     final PgDecoder decoder;
     final MessageHandler handler;
@@ -435,7 +436,7 @@ public class PostgresWireProtocol {
             String database = properties.getProperty("database");
             session = sqlOperations.createSession(database, authenticatedUser);
             Messages.sendAuthenticationOK(channel)
-                .addListener(f -> sendParams(channel))
+                .addListener(f -> sendParams(channel, session))
                 .addListener(f -> Messages.sendKeyData(channel, session.id(), session.secret()))
                 .addListener(f -> {
                     sendReadyForQuery(channel, TransactionState.IDLE);
@@ -460,12 +461,12 @@ public class PostgresWireProtocol {
         addTransportHandler.accept(pipeline);
     }
 
-    private void sendParams(Channel channel) {
+    private void sendParams(Channel channel, Session session) {
         Messages.sendParameterStatus(channel, "crate_version", Version.CURRENT.externalNumber());
         Messages.sendParameterStatus(channel, "server_version", PG_SERVER_VERSION);
         Messages.sendParameterStatus(channel, "server_encoding", "UTF8");
         Messages.sendParameterStatus(channel, "client_encoding", "UTF8");
-        Messages.sendParameterStatus(channel, "datestyle", "ISO");
+        Messages.sendParameterStatus(channel, "datestyle", session.sessionSettings().dateStyle());
         Messages.sendParameterStatus(channel, "TimeZone", "UTC");
         Messages.sendParameterStatus(channel, "integer_datetimes", "on");
     }

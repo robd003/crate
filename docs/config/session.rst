@@ -102,6 +102,20 @@ Supported session settings
      considering it, it will not guarantee it.  See also the :ref:`available
      join algorithms <available-join-algo>` for more insights on this topic.
 
+.. _conf-session-datestyle:
+
+**datestyle**
+  | *Default:* ``ISO``
+  | *Modifiable:* ``yes``
+
+  Shows the display format for date and time values. Only the ``ISO`` style is 
+  supported. Optionally provided date order conventions are ignored.
+
+  .. NOTE::
+
+     The session setting currently has no effect in CrateDB and exists for 
+     compatibility with ``PostgreSQL``.
+
 .. _conf-session-max_index_keys:
 
 **max_index_keys**

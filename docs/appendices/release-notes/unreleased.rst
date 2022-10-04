@@ -53,7 +53,9 @@ None
 Changes
 =======
 
-None
+- Added a :ref:`datestyle <conf-session-datestyle>` session setting that shows 
+  the display format for date and time values. Only the ``ISO`` style is 
+  supported. Optionally provided date order conventions are ignored.
 
 Fixes
 =====

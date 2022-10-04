@@ -73,6 +73,24 @@ public class SessionSettingRegistryTest {
         assertBooleanNonEmptySetting(sessionSettings::errorOnUnknownObjectKey, setting, true);
     }
 
+    @Test
+    public void test_date_style_session_setting() {
+        SessionSetting<?> setting = new SessionSettingRegistry(Set.of(new LoadedRules())).settings().get(SessionSettingRegistry.DATE_STYLE.name());
+        assertThat(setting.defaultValue(),is("ISO"));
+        setting.apply(sessionSettings, generateInput("iso"), eval);
+        assertThat(sessionSettings.dateStyle(), is("ISO"));
+        setting.apply(sessionSettings, generateInput("MDY"), eval);
+        assertThat(sessionSettings.dateStyle(), is("ISO"));
+        setting.apply(sessionSettings, generateInput("ISO, MDY"), eval);
+        assertThat(sessionSettings.dateStyle(), is("ISO"));
+        assertThrows(IllegalArgumentException.class,
+                     () -> setting.apply(sessionSettings, generateInput("German,ISO"), eval),
+                     "Invalid value for parameter \"datestyle\": \"GERMAN\"");
+        assertThrows(IllegalArgumentException.class,
+                     () -> setting.apply(sessionSettings, generateInput("SQL, MDY"), eval),
+                     "Invalid value for parameter \"datestyle\": \"SQL\"");
+    }
+
     private void assertBooleanNonEmptySetting(Supplier<Boolean> contextBooleanSupplier,
                                               SessionSetting<?> sessionSetting,
                                               boolean defaultValue) {
