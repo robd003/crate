@@ -31,8 +31,6 @@ import javax.annotation.Nullable;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.BooleanClause.Occur;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.FieldExistsQuery;
 import org.apache.lucene.search.Query;
@@ -45,7 +43,6 @@ import io.crate.expression.symbol.DynamicReference;
 import io.crate.expression.symbol.Function;
 import io.crate.expression.symbol.Literal;
 import io.crate.expression.symbol.Symbol;
-import io.crate.lucene.LuceneQueryBuilder;
 import io.crate.lucene.LuceneQueryBuilder.Context;
 import io.crate.metadata.NodeContext;
 import io.crate.metadata.Reference;
@@ -55,7 +52,6 @@ import io.crate.metadata.functions.Signature;
 import io.crate.sql.tree.ColumnPolicy;
 import io.crate.types.ArrayType;
 import io.crate.types.DataTypes;
-import io.crate.types.ObjectType;
 import io.crate.types.StorageSupport;
 
 public class IsNullPredicate<T> extends Scalar<Boolean, T> {
@@ -122,13 +118,6 @@ public class IsNullPredicate<T> extends Scalar<Boolean, T> {
             if (refExistsQuery == null) {
                 return null;
             }
-            if (ref.valueType() instanceof ArrayType<?> && refExistsQuery instanceof FieldExistsQuery) {
-                // For empty arrays there is nothing in the index and fieldsExists checks don't work
-                return new BooleanQuery.Builder()
-                    .add(Queries.not(refExistsQuery), Occur.MUST)
-                    .add(LuceneQueryBuilder.genericFunctionFilter(function, context), Occur.MUST)
-                    .build();
-            }
             return Queries.not(refExistsQuery);
         }
         return null;
@@ -136,6 +125,13 @@ public class IsNullPredicate<T> extends Scalar<Boolean, T> {
 
     @Nullable
     public static Query refExistsQuery(Reference ref, Context context) {
+
+        if (ref.valueType().id() == ArrayType.ID) {
+            // Arrays can be empty and for empty arrays there is nothing in the index and fieldsExists checks don't work.
+            // Array of any type would require full scan to handle IS NULL / IS NOT NULL so let's fall to GenericFunctionQuery right away.
+            return null;
+        }
+
         String field = ref.column().fqn();
         StorageSupport<?> storageSupport = ref.valueType().storageSupport();
         if (storageSupport == null && ref instanceof DynamicReference) {
@@ -149,19 +145,6 @@ public class IsNullPredicate<T> extends Scalar<Boolean, T> {
             FieldType fieldType = context.queryShardContext().getMapperService().getLuceneFieldType(field);
             if (fieldType != null && !fieldType.omitNorms()) {
                 return new FieldExistsQuery(field);
-            }
-            if (ArrayType.unnest(ref.valueType()) instanceof ObjectType objType) {
-                BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
-                for (var entry : objType.innerTypes().entrySet()) {
-                    String childColumn = entry.getKey();
-                    Reference childRef = context.getRef(ref.column().append(childColumn));
-                    Query refExistsQuery = refExistsQuery(childRef, context);
-                    if (refExistsQuery == null) {
-                        return null;
-                    }
-                    booleanQuery.add(refExistsQuery, Occur.SHOULD);
-                }
-                return new ConstantScoreQuery(booleanQuery.build());
             }
             if (fieldType == null || fieldType.indexOptions() == IndexOptions.NONE && !fieldType.stored()) {
                 return null;
