@@ -114,7 +114,7 @@ public class IsNullPredicate<T> extends Scalar<Boolean, T> {
             if (!ref.isNullable()) {
                 return Queries.newMatchNoDocsQuery("`x IS NULL` on column that is NOT NULL can't match");
             }
-            Query refExistsQuery = refExistsQuery(ref, context);
+            Query refExistsQuery = refExistsQuery(ref, context, true);
             if (refExistsQuery == null) {
                 return null;
             }
@@ -124,12 +124,17 @@ public class IsNullPredicate<T> extends Scalar<Boolean, T> {
     }
 
     @Nullable
-    public static Query refExistsQuery(Reference ref, Context context) {
+    public static Query refExistsQuery(Reference ref, Context context, boolean arrayToGenericFunction) {
 
         if (ref.valueType().id() == ArrayType.ID) {
             // Arrays can be empty and for empty arrays there is nothing in the index and fieldsExists checks don't work.
-            // Array of any type would require full scan to handle IS NULL / IS NOT NULL so let's fall to GenericFunctionQuery right away.
-            return null;
+            // Array of any type would require full scan to handle IS NULL / IS NOT NULL.
+
+            // However, FieldExistsQuery is also used for array_length >0/>=0
+            // which should try to use optimized query if inner type is not OBJECT or GEO_SHAPE.
+            if (arrayToGenericFunction) {
+                return null;
+            }
         }
 
         String field = ref.column().fqn();

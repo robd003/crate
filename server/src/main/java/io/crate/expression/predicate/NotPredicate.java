@@ -192,7 +192,7 @@ public class NotPredicate extends Scalar<Boolean, Boolean> {
                 if (ref.columnPolicy() == ColumnPolicy.IGNORED) {
                     return null;
                 }
-                return IsNullPredicate.refExistsQuery(ref, context);
+                return IsNullPredicate.refExistsQuery(ref, context, true);
             }
         }
 
@@ -206,7 +206,7 @@ public class NotPredicate extends Scalar<Boolean, Boolean> {
         arg.accept(INNER_VISITOR, ctx);
         for (Reference reference : ctx.references()) {
             if (reference.isNullable()) {
-                builder.add(IsNullPredicate.refExistsQuery(reference, context), BooleanClause.Occur.MUST);
+                builder.add(IsNullPredicate.refExistsQuery(reference, context, false), BooleanClause.Occur.MUST);
             }
         }
         if (ctx.hasStrictThreeValuedLogicFunction) {
