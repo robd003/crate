@@ -169,5 +169,5 @@ Fixes
   :ref:`indices.breaker.query.limit` is set to ``-1`` as the value was
   interpreted as a byte value instead of disabling any breaking.
 
-- Fixed an issue that caused ``col IS NULL`` and ``col IS NOT NULL`` to match
-  empty objects or empty array of objects.
+- Fixed an issue that caused ``col IS NULL``/``col IS NOT NULL`` to
+  match/don't match empty objects or empty arrays of objects.
