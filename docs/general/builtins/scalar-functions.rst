@@ -2995,6 +2995,42 @@ Returns: ``array(text)``
     SELECT 1 row in set (... sec)
 
 
+.. _scalar-object_merge:
+
+``object_merge(object, object)``
+--------------------------------
+
+The ``object_merge`` function combines two objects into a new object 
+containing the union of their first level properties, taking the second 
+object's values for duplicate properties.
+
+Returns: ``object``
+
+::
+
+    cr> select
+    ...     object_merge({a = 1}, {a = 2, b = { c = 2 }}) AS object_merge;
+    +-------------------------+
+    | object_merge            |
+    +-------------------------+
+    | {"a": 2, "b": {"c": 2}} |
+    +-------------------------+
+    SELECT 1 row in set (... sec)
+
+
+You can also use the concat :ref:`operator <gloss-operator>` ``||`` with
+objects::
+
+    cr> select
+    ...     {a = 1} || {b = 2} || {c = 3} AS "object";
+    +--------------------------+
+    | object                   |
+    +--------------------------+
+    | {"a": 1, "b": 2, "c": 3} |
+    +--------------------------+
+    SELECT 1 row in set (... sec)
+
+
 .. _scalar-conditional-fn-exp:
 
 Conditional functions and expressions

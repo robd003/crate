@@ -53,7 +53,9 @@ None
 Changes
 =======
 
-None
+- Added the :ref:`object_merge <scalar-object_merge>` scalar function which 
+  combines two objects into a new object containing the union of their first 
+  level properties, taking the second object's values for duplicate properties.
 
 Fixes
 =====
