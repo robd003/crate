@@ -84,6 +84,9 @@ public class SessionSettingRegistryTest {
         setting.apply(sessionSettings, generateInput("ISO, MDY"), eval);
         assertThat(sessionSettings.dateStyle(), is("ISO"));
         assertThrows(IllegalArgumentException.class,
+                     () -> setting.apply(sessionSettings, generateInput("ISO, YDM"), eval),
+                     "Invalid value for parameter \"datestyle\": \"YDM\"");
+        assertThrows(IllegalArgumentException.class,
                      () -> setting.apply(sessionSettings, generateInput("German,ISO"), eval),
                      "Invalid value for parameter \"datestyle\": \"GERMAN\"");
         assertThrows(IllegalArgumentException.class,

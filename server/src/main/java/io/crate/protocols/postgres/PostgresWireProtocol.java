@@ -192,7 +192,6 @@ public class PostgresWireProtocol {
 
     public static int SERVER_VERSION_NUM = 100500;
     public static String PG_SERVER_VERSION = "10.5";
-    public static String DATE_STYLE = "ISO";
 
     final PgDecoder decoder;
     final MessageHandler handler;

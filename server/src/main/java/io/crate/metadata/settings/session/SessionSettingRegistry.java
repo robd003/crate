@@ -68,7 +68,7 @@ public class SessionSettingRegistry {
         inputs -> DEFAULT_DATE_STYLE,
         CoordinatorSessionSettings::setDateStyle,
         SessionSettings::dateStyle,
-        () -> String.valueOf(PostgresWireProtocol.DATE_STYLE),
+        () -> String.valueOf(DEFAULT_DATE_STYLE),
         "Display format for date and time values.",
         DataTypes.STRING
     );
@@ -189,12 +189,25 @@ public class SessionSettingRegistry {
         for (String s : strings) {
             dateStyle = s.toUpperCase(Locale.ENGLISH);
             switch (dateStyle) {
+                // date format style
+                case "ISO":
+                    break;
                 case "SQL":
                 case "POSTGRES":
                 case "GERMAN":
                     throw new IllegalArgumentException("Invalid value for parameter \"datestyle\": \"" + dateStyle + "\"");
-                default:
+                // date order style
+                case "MDY":
+                case "NONEURO":
+                case "NONEUROPEAN":
+                case "US":
+                case "DMY":
+                case "EURO":
+                case "EUROPEAN":
+                case "YMD":
                     break;
+                default:
+                    throw new IllegalArgumentException("Invalid value for parameter \"datestyle\": \"" + dateStyle + "\"");
             }
         }
     }
