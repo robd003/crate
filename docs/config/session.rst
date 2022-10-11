@@ -114,7 +114,8 @@ Supported session settings
   .. NOTE::
 
      The session setting currently has no effect in CrateDB and exists for 
-     compatibility with ``PostgreSQL``.
+     compatibility with ``PostgreSQL``. Trying to set this to a date format 
+     style other than ``ISO`` will raise an exception.
 
 .. _conf-session-max_index_keys:
 

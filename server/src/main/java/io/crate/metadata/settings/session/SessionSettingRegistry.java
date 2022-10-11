@@ -25,12 +25,10 @@ import static io.crate.metadata.SearchPath.createSearchPathFrom;
 import static io.crate.Constants.DEFAULT_DATE_STYLE;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.inject.Singleton;
@@ -175,11 +173,10 @@ public class SessionSettingRegistry {
     private static String[] objectsToStringArray(Object[] objects) {
         ArrayList<String> argumentList = new ArrayList<>();
         for (int i = 0; i < objects.length; i++) {
-            String str = DataTypes.STRING.implicitCast(objects[i]).trim();
-            argumentList.addAll(Arrays.stream(str.split(","))
-                              .map(String::trim)
-                              .collect(Collectors
-                              .toCollection(ArrayList::new)));
+            String str = DataTypes.STRING.implicitCast(objects[i]);
+            for (String element : str.split(",")) {
+                argumentList.add(element.trim());
+            }
         }
         return argumentList.toArray(String[]::new);
     }
@@ -195,7 +192,7 @@ public class SessionSettingRegistry {
                 case "SQL":
                 case "POSTGRES":
                 case "GERMAN":
-                    throw new IllegalArgumentException("Invalid value for parameter \"datestyle\": \"" + dateStyle + "\"");
+                    throw new IllegalArgumentException("Invalid value for parameter \"datestyle\": \"" + dateStyle + "\". Valid values include: [\"ISO\"].");
                 // date order style
                 case "MDY":
                 case "NONEURO":
@@ -207,7 +204,7 @@ public class SessionSettingRegistry {
                 case "YMD":
                     break;
                 default:
-                    throw new IllegalArgumentException("Invalid value for parameter \"datestyle\": \"" + dateStyle + "\"");
+                    throw new IllegalArgumentException("Invalid value for parameter \"datestyle\": \"" + dateStyle + "\". Valid values include: [\"ISO\"].");
             }
         }
     }
