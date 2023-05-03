@@ -428,8 +428,8 @@ public class ShowIntegrationTest extends IntegTestCase {
             "optimizer_rewrite_nested_loop_join_to_hash_join| true| Indicates if the optimizer rule RewriteNestedLoopJoinToHashJoin is activated.",
             "optimizer_rewrite_to_query_then_fetch| true| Indicates if the optimizer rule RewriteToQueryThenFetch is activated.",
             "search_path| doc| Sets the schema search order.",
-            "server_version| 11.0| Reports the emulated PostgreSQL version number",
-            "server_version_num| 110000| Reports the emulated PostgreSQL version number"
+            "server_version| 14.0| Reports the emulated PostgreSQL version number",
+            "server_version_num| 140000| Reports the emulated PostgreSQL version number"
         );
     }
 
