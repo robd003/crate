@@ -27,6 +27,8 @@ import java.util.List;
 import org.apache.lucene.index.DocValues;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.index.SortedNumericDocValues;
+import org.apache.lucene.search.DocAndFloatFeatureBuffer;
+import org.apache.lucene.util.ArrayUtil;
 import org.apache.lucene.util.NumericUtils;
 import org.elasticsearch.Version;
 import org.elasticsearch.common.breaker.CircuitBreakingException;
@@ -59,6 +61,9 @@ import io.crate.types.IntegerType;
 import io.crate.types.LongType;
 import io.crate.types.ShortType;
 import io.crate.types.TimestampType;
+import jdk.incubator.vector.LongVector;
+import jdk.incubator.vector.VectorOperators;
+import jdk.incubator.vector.VectorSpecies;
 
 public abstract class MaximumAggregation extends AggregationFunction<Object, Object> {
 
@@ -90,8 +95,10 @@ public abstract class MaximumAggregation extends AggregationFunction<Object, Obj
 
     private static class LongMax implements DocValueAggregator<MutableLong> {
 
+        private static final VectorSpecies<Long> SPECIES = LongVector.SPECIES_PREFERRED;
         private final String columnName;
         private final DataType<?> partialType;
+        private long[] longValues = new long[64];
         private SortedNumericDocValues values;
 
         public LongMax(String columnName, DataType<?> partialType) {
@@ -115,6 +122,35 @@ public abstract class MaximumAggregation extends AggregationFunction<Object, Obj
             if (values.advanceExact(doc) && values.docValueCount() == 1) {
                 long value = values.nextValue();
                 if (value >= state.value()) {
+                    state.setValue(value);
+                }
+            }
+        }
+
+        @Override
+        public void applyBulk(RamAccounting ramAccounting, DocAndFloatFeatureBuffer buffer, MutableLong state) throws IOException {
+            longValues = ArrayUtil.growNoCopy(longValues, buffer.size);
+            for (int i = 0; i < buffer.size; i++) {
+                int doc = buffer.docs[i];
+                if (values.advanceExact(doc) && values.docValueCount() == 1) {
+                    longValues[i] = values.nextValue();
+                } else {
+                    longValues[i] = Long.MIN_VALUE;
+                }
+            }
+            int i = 0;
+            int upperBound = SPECIES.loopBound(buffer.size);
+            for (; i < upperBound; i += SPECIES.length()) {
+                var mask = SPECIES.indexInRange(i, buffer.size);
+                LongVector vec = LongVector.fromArray(SPECIES, longValues, i, mask);
+                long max = vec.reduceLanes(VectorOperators.MAX);
+                if (max > state.value()) {
+                    state.setValue(max);
+                }
+            }
+            for (; i < buffer.size; i++) {
+                long value = longValues[i];
+                if (value > state.value()) {
                     state.setValue(value);
                 }
             }

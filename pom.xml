@@ -53,8 +53,11 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${versions.plugin.compiler}</version>
                 <configuration>
+                    <enablePreview>true</enablePreview>
                     <compilerArgs>
                         <arg>-proc:full</arg>
+                        <arg>--add-modules</arg>
+                        <arg>jdk.incubator.vector</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>

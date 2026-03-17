@@ -22,6 +22,8 @@
 package io.crate.integrationtests;
 
 import static io.crate.testing.Asserts.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Map;
 
 import org.elasticsearch.test.IntegTestCase;
@@ -40,6 +42,16 @@ public class AggregateExpressionIntegrationTest extends IntegTestCase {
 
         execute("select sum(x) from tbl");
         assertThat(response).hasRows("6");
+    }
+
+    @Test
+    public void test_max_long() throws Exception {
+        execute("create table tbl (x long)");
+        execute("insert into tbl (x) values (1), (2), (3)");
+        execute("refresh table tbl");
+
+        execute("select max(x) from tbl");
+        assertThat(response).hasRows("3");
     }
 
     @Test
