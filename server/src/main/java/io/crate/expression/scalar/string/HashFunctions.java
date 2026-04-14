@@ -37,12 +37,6 @@ import io.crate.types.DataTypes;
 
 public final class HashFunctions {
 
-    private static final UnaryOperator<byte[]> BLAKE3_HASHER = bytes -> {
-        Blake3 digest = Blake3.initHash();
-        digest.update(bytes);
-        return digest.doFinalize(32);
-    };
-
     public static void register(Functions.Builder builder) {
         register(builder, "md5", HashMethod.MD5::digest);
         register(builder, "sha1", HashMethod.SHA1::digest);
@@ -64,7 +58,12 @@ public final class HashFunctions {
     private enum HashMethod {
         MD5(bytes -> MessageDigests.md5().digest(bytes)),
         SHA1(bytes -> MessageDigests.sha1().digest(bytes)),
-        BLAKE3(BLAKE3_HASHER);
+        BLAKE3(bytes -> {
+            Blake3 digest = Blake3.initHash();
+            digest.update(bytes);
+            // Blake3 defaults to 32 byte (256-bit) output
+            return digest.doFinalize(32);
+        });
 
         private final UnaryOperator<byte[]> byteHasher;
 
