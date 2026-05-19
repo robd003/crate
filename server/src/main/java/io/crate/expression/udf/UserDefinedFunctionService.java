@@ -255,6 +255,10 @@ public class UserDefinedFunctionService extends AbstractLifecycleComponent imple
         updateImplementations(event.state().metadata());
     }
 
+    /**
+     * NOTE: Must only be called when loading persisted metadata during node startup
+     * or via cluster state change events.
+     */
     public void updateImplementations(Metadata newMetadata) {
         final Map<FunctionName, List<FunctionProvider>> implementations = new HashMap<>();
         for (var schema : newMetadata.schemas().values()) {
