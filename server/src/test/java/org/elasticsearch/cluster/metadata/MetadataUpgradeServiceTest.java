@@ -88,8 +88,8 @@ public class MetadataUpgradeServiceTest extends CrateDummyClusterServiceUnitTest
         e.udfService().registerLanguage(UdfUnitTest.DUMMY_LANG);
         metadataUpgradeService = new MetadataUpgradeService(
             e.nodeCtx,
-            IndexScopedSettings.DEFAULT_SCOPED_SETTINGS,
-            e.udfService());
+            IndexScopedSettings.DEFAULT_SCOPED_SETTINGS
+        );
     }
 
     @Test

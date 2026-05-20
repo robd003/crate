@@ -47,7 +47,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.crate.expression.udf.UserDefinedFunctionService;
 import io.crate.metadata.ColumnIdent;
 import io.crate.metadata.NodeContext;
 import io.crate.metadata.PartitionName;
@@ -426,8 +425,7 @@ public class PublicationsStateActionTest extends CrateDummyClusterServiceUnitTes
         NodeContext nodeContext = createNodeContext();
         MetadataUpgradeService metadataUpgradeService = new MetadataUpgradeService(
             nodeContext,
-            IndexScopedSettings.DEFAULT_SCOPED_SETTINGS,
-            new UserDefinedFunctionService(clusterService, nodeContext)
+            IndexScopedSettings.DEFAULT_SCOPED_SETTINGS
         );
 
         // Ensure a node < 6.0.0 can read the response

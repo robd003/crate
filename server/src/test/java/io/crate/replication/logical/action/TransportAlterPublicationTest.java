@@ -38,7 +38,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.crate.exceptions.RelationUnknown;
-import io.crate.expression.udf.UserDefinedFunctionService;
 import io.crate.metadata.NodeContext;
 import io.crate.metadata.RelationName;
 import io.crate.replication.logical.metadata.Publication;
@@ -54,8 +53,7 @@ public class TransportAlterPublicationTest extends CrateDummyClusterServiceUnitT
     public void setUpUpgradeService() throws Exception {
         metadataUpgradeService = new MetadataUpgradeService(
             nodeCtx,
-            new IndexScopedSettings(Settings.EMPTY, Set.of()),
-            new UserDefinedFunctionService(clusterService, nodeCtx)
+            new IndexScopedSettings(Settings.EMPTY, Set.of())
         );
     }
 

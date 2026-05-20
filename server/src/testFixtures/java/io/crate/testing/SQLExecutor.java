@@ -358,7 +358,7 @@ public class SQLExecutor {
             var threadPool = mock(ThreadPool.class);
             var logicalReplicationSettings = new LogicalReplicationSettings(settings, clusterService);
             NodeClient client = new NodeClient();
-            MetadataUpgradeService metadataUpgradeService = new MetadataUpgradeService(nodeCtx, IndexScopedSettings.DEFAULT_SCOPED_SETTINGS, udfService);
+            MetadataUpgradeService metadataUpgradeService = new MetadataUpgradeService(nodeCtx, IndexScopedSettings.DEFAULT_SCOPED_SETTINGS);
             var logicalReplicationService = new LogicalReplicationService(
                 settings,
                 IndexScopedSettings.DEFAULT_SCOPED_SETTINGS,

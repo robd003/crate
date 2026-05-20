@@ -35,7 +35,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.Index;
 import org.junit.Test;
 
-import io.crate.expression.udf.UserDefinedFunctionService;
 import io.crate.metadata.NodeContext;
 import io.crate.metadata.RelationName;
 import io.crate.test.integration.CrateDummyClusterServiceUnitTest;
@@ -46,8 +45,7 @@ public class ClusterStateUpgraderTest extends CrateDummyClusterServiceUnitTest {
     private final NodeContext nodeContext = createNodeContext();
     private final MetadataUpgradeService metadataUpgradeService = new MetadataUpgradeService(
         nodeContext,
-        IndexScopedSettings.DEFAULT_SCOPED_SETTINGS,
-        new UserDefinedFunctionService(clusterService, nodeContext)
+        IndexScopedSettings.DEFAULT_SCOPED_SETTINGS
     );
 
     @Test
