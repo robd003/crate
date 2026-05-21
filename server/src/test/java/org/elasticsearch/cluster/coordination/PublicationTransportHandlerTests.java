@@ -46,6 +46,7 @@ import org.elasticsearch.cluster.metadata.MetadataUpgradeService;
 import org.elasticsearch.cluster.metadata.RelationMetadata;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.cluster.node.DiscoveryNodes;
+import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.UUIDs;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.compress.CompressorFactory;
@@ -64,7 +65,9 @@ import org.elasticsearch.transport.TestTransportChannel;
 import org.elasticsearch.transport.TransportResponse;
 import org.elasticsearch.transport.TransportService;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import io.crate.expression.udf.UserDefinedFunctionService;
 import io.crate.metadata.ColumnIdent;
 import io.crate.metadata.IndexType;
 import io.crate.metadata.NodeContext;
@@ -147,7 +150,8 @@ public class PublicationTransportHandlerTests extends ESTestCase {
         NodeContext nodeContext = createNodeContext();
         MetadataUpgradeService metadataUpgradeService = new MetadataUpgradeService(
             nodeContext,
-            new IndexScopedSettings(Settings.EMPTY, Set.of())
+            new IndexScopedSettings(Settings.EMPTY, Set.of()),
+            new UserDefinedFunctionService(Mockito.mock(ClusterService.class), nodeContext)
         );
         new PublicationTransportHandler(
             localTransportService,
@@ -267,7 +271,8 @@ public class PublicationTransportHandlerTests extends ESTestCase {
         NodeContext nodeContext = createNodeContext();
         MetadataUpgradeService metadataUpgradeService = new MetadataUpgradeService(
             nodeContext,
-            IndexScopedSettings.DEFAULT_SCOPED_SETTINGS
+            IndexScopedSettings.DEFAULT_SCOPED_SETTINGS,
+            new UserDefinedFunctionService(Mockito.mock(ClusterService.class), nodeContext)
         );
         new PublicationTransportHandler(
             localTransportService,

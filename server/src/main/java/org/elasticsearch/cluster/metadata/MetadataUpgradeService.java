@@ -39,6 +39,7 @@ import org.jspecify.annotations.Nullable;
 
 import io.crate.blob.v2.BlobIndex;
 import io.crate.common.annotations.VisibleForTesting;
+import io.crate.expression.udf.UserDefinedFunctionService;
 import io.crate.expression.udf.UserDefinedFunctionsMetadata;
 import io.crate.fdw.ForeignTablesMetadata;
 import io.crate.metadata.IndexName;
@@ -70,12 +71,15 @@ public class MetadataUpgradeService {
     private final IndexScopedSettings indexScopedSettings;
     private final MetadataIndexUpgrader indexUpgrader;
     private final DocTableInfoFactory tableFactory;
+    private final UserDefinedFunctionService userDefinedFunctionService;
 
     public MetadataUpgradeService(NodeContext nodeContext,
-                                  IndexScopedSettings indexScopedSettings) {
+                                  IndexScopedSettings indexScopedSettings,
+                                  UserDefinedFunctionService userDefinedFunctionService) {
         this.tableFactory = new DocTableInfoFactory(nodeContext);
         this.indexScopedSettings = indexScopedSettings;
         this.indexUpgrader = new MetadataIndexUpgrader();
+        this.userDefinedFunctionService = userDefinedFunctionService;
     }
 
     public Metadata upgradeMetadata(Metadata metadata) {

@@ -47,6 +47,7 @@ import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.transport.RemoteClusters;
 import org.junit.Test;
 
+import io.crate.expression.udf.UserDefinedFunctionService;
 import io.crate.metadata.NodeContext;
 import io.crate.replication.logical.LogicalReplicationService;
 import io.crate.replication.logical.LogicalReplicationSettings;
@@ -87,7 +88,8 @@ public class LogicalReplicationRepositoryTest extends CrateDummyClusterServiceUn
             mock(LogicalReplicationService.class),
             new MetadataUpgradeService(
                 nodeContext,
-                IndexScopedSettings.DEFAULT_SCOPED_SETTINGS
+                IndexScopedSettings.DEFAULT_SCOPED_SETTINGS,
+                new UserDefinedFunctionService(clusterService, nodeContext)
             ),
             remoteClusters,
             repositoryMetadata,

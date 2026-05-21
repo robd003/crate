@@ -66,8 +66,10 @@ import org.elasticsearch.snapshots.Snapshot;
 import org.elasticsearch.snapshots.SnapshotId;
 import org.elasticsearch.snapshots.SnapshotInfo;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import io.crate.common.io.IOUtils;
+import io.crate.expression.udf.UserDefinedFunctionService;
 import io.crate.metadata.NodeContext;
 
 /**
@@ -178,7 +180,8 @@ public class BlobStoreRepositoryRestoreTests extends IndexShardTestCase {
             NodeContext nodeContext = createNodeContext();
             MetadataUpgradeService metadataUpgradeService = new MetadataUpgradeService(
                 nodeContext,
-                IndexScopedSettings.DEFAULT_SCOPED_SETTINGS
+                IndexScopedSettings.DEFAULT_SCOPED_SETTINGS,
+                new UserDefinedFunctionService(Mockito.mock(ClusterService.class), nodeContext)
             );
             Metadata metadata = metadataUpgradeService.upgradeMetadata(
                 new Metadata.Builder(Metadata.OID_UNASSIGNED).put(shard.indexSettings().getIndexMetadata(), false).build()
