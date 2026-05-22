@@ -260,6 +260,10 @@ public class UserDefinedFunctionService extends AbstractLifecycleComponent imple
      * or via cluster state change events.
      */
     public void updateImplementations(Metadata newMetadata) {
+        nodeCtx.functions().setUDFs(buildUDFResolvers(newMetadata));
+    }
+
+    public Map<FunctionName, List<FunctionProvider>> buildUDFResolvers(Metadata newMetadata) {
         final Map<FunctionName, List<FunctionProvider>> implementations = new HashMap<>();
         for (var schema : newMetadata.schemas().values()) {
             for (var udf : schema.udfs()) {
@@ -272,7 +276,7 @@ public class UserDefinedFunctionService extends AbstractLifecycleComponent imple
                 providers.add(provider);
             }
         }
-        nodeCtx.functions().setUDFs(implementations);
+        return implementations;
     }
 
     @Override
