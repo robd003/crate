@@ -206,6 +206,22 @@ public class UserDefinedFunctionService extends AbstractLifecycleComponent imple
         return new FunctionProvider(signature, (s, args) -> scalar);
     }
 
+    public Map<FunctionName, List<FunctionProvider>> buildUDFResolvers(Metadata metadata) {
+        final Map<FunctionName, List<FunctionProvider>> implementations = new HashMap<>();
+        for (var schema : metadata.schemas().values()) {
+            for (var udf : schema.udfs()) {
+                FunctionProvider provider = buildFunctionResolver(udf);
+                if (provider == null) {
+                    continue;
+                }
+                FunctionName name = provider.signature().getName();
+                var providers = implementations.computeIfAbsent(name, _ -> new ArrayList<>());
+                providers.add(provider);
+            }
+        }
+        return implementations;
+    }
+
     /**
      * Verifies that the function is not used in:
      *
@@ -249,19 +265,7 @@ public class UserDefinedFunctionService extends AbstractLifecycleComponent imple
     }
 
     public void updateImplementations(Metadata newMetadata) {
-        final Map<FunctionName, List<FunctionProvider>> implementations = new HashMap<>();
-        for (var schema : newMetadata.schemas().values()) {
-            for (var udf : schema.udfs()) {
-                FunctionProvider provider = buildFunctionResolver(udf);
-                if (provider == null) {
-                    continue;
-                }
-                FunctionName name = provider.signature().getName();
-                var providers = implementations.computeIfAbsent(name, k -> new ArrayList<>());
-                providers.add(provider);
-            }
-        }
-        nodeCtx.functions().setUDFs(implementations);
+        nodeCtx.functions().setUDFs(buildUDFResolvers(newMetadata));
     }
 
     @Override
