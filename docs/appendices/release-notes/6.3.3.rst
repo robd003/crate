@@ -53,3 +53,6 @@ Fixes
 - Fixed an issue that caused :ref:`RESTORE SNAPSHOT <sql-restore-snapshot>` to
   return ``RESTORE OK`` even if some shards failed to restore (for example, due
   to exceeded disk watermarks). It now fails with a ``SnapshotRestoreException``.
+
+- Fixed an issue that caused nodes to fail to start when parsing persisted
+  mappings for tables containing columns of type ``uuid``.
