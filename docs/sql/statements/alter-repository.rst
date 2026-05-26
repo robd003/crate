@@ -14,7 +14,7 @@ Synopsis
 
     ALTER REPOSITORY name
         SET ( parameter = value [, ...] )
-        | RESET [parameter | ALL]
+        | RESET { parameter [, ...]  | ALL }
 
 Description
 ===========
